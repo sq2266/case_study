@@ -1,0 +1,133 @@
+```{r}
+library(p8105.datasets)
+library(tidyverse)
+library(leaflet)
+data(nyc_airbnb)
+```
+
+
+```{r}
+max(pull(nyc_airbnb, price))
+min(pull(nyc_airbnb, price))
+mean(pull(nyc_airbnb, price))
+```
+
+```{r}
+nyc_airbnb %>%
+  ggplot(aes(x = price, fill = neighbourhood_group)) +
+  geom_histogram() +
+  facet_grid(. ~ neighbourhood_group) +
+  scale_x_continuous(limits = c(0, 250))
+```
+
+```{r}
+nyc_airbnb |>
+  group_by(room_type) |>
+  summarize(mean_price = mean(price))
+```
+
+```{r}
+nyc_airbnb %>%
+  ggplot(aes(x = neighbourhood_group, y = log(price))) +
+  geom_boxplot()
+```
+
+```{r}
+max_price_bronx <- nyc_airbnb %>%
+  filter(neighbourhood_group == "Bronx") %>%
+  summarise(max_price = max(price, na.rm = TRUE))
+print(max_price_bronx)
+```
+
+```{r}
+number_of_reviews <- nyc_airbnb %>%
+  group_by(room_type) %>%
+  summarise(mean_price = median(price), na.rm = TRUE) %>%
+  pivot_wider(
+    names_from = room_type,
+    values_from = mean_price
+  )
+```
+
+```{r}
+nyc_airbnb |>
+  ggplot(aes(x=review_scores_location, y = price))+
+  geom_point()
+```
+
+
+```{r}
+nyc_airbnb |>
+  filter(neighbourhood_group == "Manhattan",
+  price < 1000,
+  room_type == "Entire home/apt")|> 
+  group_by(neighbourhood) |>
+  ggplot(aes(x=lat, y = long))+
+  geom_point(alpha = .2)
+
+```
+
+
+```{r}
+nyc_airbnb |>
+  filter(neighbourhood_group == "Manhattan",
+  price < 1000,
+  room_type == "Entire home/apt")|> 
+  group_by(neighbourhood) |>
+  summarise(mean_price = mean(price)) |>
+  arrange(desc(mean_price))
+
+```
+
+```{r}
+nyc_airbnb |>
+  filter(neighbourhood_group == "Manhattan",
+  price < 1000,
+  room_type == "Entire home/apt")|> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, price)) |>
+  ggplot(aes(x = neighbourhood,y = price)) +
+  geom_violin() +
+  theme(axis, text.x = element_text(angle = 45,vjust = 1, hjust = 1))
+
+```
+
+```{r}
+repeat_hosts = nyc_airbnb %>%
+  group_by(host_id) %>%
+  summarize(listing_count = n()) %>%
+  filter(listing_count > 1)
+print(repeat_hosts)
+```
+
+```{r}
+nyc_airbnb |>
+  filter(
+    neighbourhood_group == "Manhattan",
+    price < 1000) |>
+  slice(1:10) |>
+  leaflet() |>
+  addTiles() |>
+addMarkers(~lat, ~long)
+
+```
+
+```{r}
+pal = colorNumeric(
+  palette = "viridis",
+  domain = 
+)
+nyc_airbnb |>
+  filter(
+    neighbourhood_group == "Manhattan",
+    price < 1000) |>
+  slice(1:10) |>
+  leaflet() |>
+  add() |>
+addCircleMarkers(
+  ~lat, ~long,
+  color = ~pla(review_scores_location),radius = 2)
+
+
+```
+
+
